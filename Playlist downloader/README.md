@@ -1,6 +1,3 @@
-
-Here's an improved version of your description:
-
 YouTube Playlist Downloader
 This project consists of two main scripts that allow you to download YouTube playlists efficiently.
 
