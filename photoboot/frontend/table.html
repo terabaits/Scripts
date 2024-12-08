@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table View</title>
+  <link rel="stylesheet" href="table.css">
+</head>
+<body>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Number</th>
+          <th>PC1</th>
+          <th>PC2</th>
+          <th>File Name</th>
+          <th>Printed</th>
+          <th>Express</th>
+          <th>Copies</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <!-- Rows will be populated by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="table.js"></script>
+</body>
+</html>
