@@ -11,13 +11,24 @@ const io = new Server(server);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-
 let counterValue = 0;
 
 const PORT = 3003; // Keep PORT declaration here
 
 console.log('Serving static files from:', path.join(__dirname, '../frontend'));
 
+// In-memory table data for simplicity
+let tableData = Array.from({ length: 90 }, (_, index) => ({
+  number: index + 1,
+  pc1: false,
+  pc2: false,
+  fileName: '',
+  printed: false,
+  express: false,
+  copies: '',
+  notes: '',
+  highlighted: false, // track if the row should be highlighted
+}));
 
 // Sync database and initialize counter
 (async () => {
@@ -51,7 +62,8 @@ app.post('/update', async (req, res) => {
     counter.value = counterValue;
     await counter.save();
 
-    io.emit('counter-update', counterValue);  // Emit updated counter value to all clients
+    // Emit updated counter value to all connected clients
+    io.emit('counter-update', counterValue);  // Emit the new counter value
     res.json({ value: counterValue });
   } catch (error) {
     console.error('Error updating counter:', error);
@@ -67,35 +79,34 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   });
-});
 
-let tableData = Array.from({ length: 90 }, (_, index) => ({
-    number: index + 1,
-    pc1: false,
-    pc2: false,
-    fileName: '',
-    printed: false,
-    express: false,
-    copies: '',
-    notes: '',
-  }));
-  
-  // Endpoint to get the table data
-  app.get('/table', (req, res) => {
-    res.json(tableData);
-  });
-  
-  // Endpoint to update a specific row
-  app.post('/table/update', (req, res) => {
-    const { number, updates } = req.body;
+  // Listen for changes to the table data
+  socket.on('table-update', (data) => {
+    const { number, updates } = data;
     const rowIndex = tableData.findIndex((row) => row.number === number);
-    
+
     if (rowIndex !== -1) {
       tableData[rowIndex] = { ...tableData[rowIndex], ...updates };
-      io.emit('table-update', { number, updates });
-      res.json({ success: true, row: tableData[rowIndex] });
-    } else {
-      res.status(404).json({ success: false, error: 'Row not found' });
+      io.emit('table-update', { number, updates }); // Emit updated table data to clients
     }
   });
-  
+});
+
+// Endpoint to get the table data (persisted state)
+app.get('/table', (req, res) => {
+  res.json(tableData); // Return the current table data, including state and highlights
+});
+
+// Endpoint to update a specific row (persisted state)
+app.post('/table/update', (req, res) => {
+  const { number, updates } = req.body;
+  const rowIndex = tableData.findIndex((row) => row.number === number);
+
+  if (rowIndex !== -1) {
+    tableData[rowIndex] = { ...tableData[rowIndex], ...updates };
+    io.emit('table-update', { number, updates });
+    res.json({ success: true, row: tableData[rowIndex] });
+  } else {
+    res.status(404).json({ success: false, error: 'Row not found' });
+  }
+});

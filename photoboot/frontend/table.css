@@ -45,3 +45,37 @@ body {
     text-align: center;
   }
   
+  .number-cell {
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+  }
+  
+  .number-cell.highlighted {
+    background-color: yellow;
+    color: black;
+  }
+
+  .number-cell {
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+  }
+  
+  .number-cell.highlighted {
+    background-color: yellow;
+    color: black;
+  }
+  
+  .number-cell.orange {
+    background-color: orange;
+    color: black;
+  }
+  
+  .number-cell.green {
+    background-color: green;
+    color: black;
+  }
+  
+  .number-cell.red {
+    background-color: red;
+    color: white;
+  }
+  
+  
