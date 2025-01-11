@@ -3,20 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Table View</title>
-  <link rel="stylesheet" href="table.css">  <!-- Ensure this path is correct -->
+  <title>CABARE ADMIN</title>
+  <link rel="stylesheet" href="table.css"> <!-- Ensure this path is correct -->
 </head>
 <body>
+  <div id="button-container">
+    <img src="lonexone_horizontal.png" alt="LonexOne Logo" id="logo">
+    <span id="counter" class="counter">0</span> <!-- Add the 'counter' class here -->
+    <div class="buttons">
+      <button id="decrease">Decrease</button>
+      <button id="increase">Increase</button>
+    </div>
+    <div id="buttons">
+      <button id="save-button">Save</button>
+      <button id="clear-button">Clear</button>
+    </div>
+  </div>
   <div class="table-container">
     <table>
       <thead>
         <tr>
           <th>Number</th>
+          <th>Group</th>
           <th>PC1</th>
           <th>PC2</th>
-          <th>File Name</th>
           <th>Printed</th>
           <th>Express</th>
+          <th>Paid</th>
+          <th>Picked</th>
+          <th>Upload</th>
+          <th>Price</th>
+          <th>Type</th>
+          <th>People</th>
           <th>Copies</th>
           <th>Notes</th>
         </tr>
@@ -27,7 +45,8 @@
     </table>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>  <!-- Make sure socket.io.js is being served -->
-  <script src="table.js"></script>  <!-- Ensure table.js exists -->
+  <script src="/socket.io/socket.io.js"></script> <!-- Ensure socket.io.js is served -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="table.js"></script> <!-- Ensure table.js exists -->
 </body>
 </html>

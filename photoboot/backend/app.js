@@ -4,7 +4,11 @@ const http = require('http');
 const { sequelize, Counter } = require('./db');
 const path = require('path');
 
+
+const cors = require('cors');
 const app = express();
+app.use(cors());
+
 const server = http.createServer(app);
 const io = new Server(server);
 
@@ -43,7 +47,7 @@ let tableData = Array.from({ length: 90 }, (_, index) => ({
     counterValue = counter.value;
 
     // Start the server after database is ready
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
   } catch (error) {
@@ -110,3 +114,22 @@ app.post('/table/update', (req, res) => {
     res.status(404).json({ success: false, error: 'Row not found' });
   }
 });
+
+app.post('/clear-table', (req, res) => {
+  // Reset the in-memory tableData to its initial state
+  tableData = tableData.map(row => ({
+    number: row.number,
+    pc1: false,
+    pc2: false,
+    fileName: '',
+    printed: false,
+    express: false,
+    copies: '',
+    notes: '',
+    highlighted: false, // Ensure highlight state is also cleared
+  }));
+
+  io.emit('table-cleared'); // Notify all connected clients
+  res.status(200).send('Table cleared successfully.');
+});
+

@@ -1,81 +1,208 @@
+/* General body styling */
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: black;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  .table-container {
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    border: 1px solid white;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  button {
-    background-color: white;
-    color: black;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: gray;
-    color: white;
-  }
-  
-  input[type="text"] {
-    width: 100%;
-    padding: 5px;
-    text-align: center;
-  }
-  
-  .number-cell {
-    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
-  }
-  
-  .number-cell.highlighted {
-    background-color: yellow;
-    color: black;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: black;
+  color: white;
+  display: flex;
+  flex-direction: column; /* Column layout for the top section and table */
+  align-items: center;
+  justify-content: flex-start; /* Align content at the top */
+  height: 100vh;
+  overflow: hidden; /* Prevent unwanted scrolling */
+}
+
+/* Dropdown styling for letters */
+.letter-dropdown {
+  font-size: 24px; /* Large font size */
+  font-weight: bold; /* Bold text */
+  text-align: center; /* Center align the text */
+  padding: 5px;
+  width: 100%;
+  box-sizing: border-box; /* Ensure consistent sizing */
+  border: 1px solid white; /* Add border for better visibility */
+  background-color: black; /* Match background */
+  color: white; /* Text color */
+}
+
+.letter-dropdown:hover,
+.letter-dropdown:focus {
+  outline: none; /* Remove default focus styles */
+  border-color: #007bff; /* Highlight border on focus */
+}
+
+/* Styling for button container */
+#button-container {
+  width: 90%; /* Matches table width */
+  margin-bottom: 10px; /* Space between top section and the table */
+  display: flex; /* Flexbox for better alignment */
+  justify-content: space-between; /* Space out logo and buttons */
+  align-items: center;
+}
+
+/* Logo styling */
+#logo {
+  height: 50px; /* Adjust logo height */
+  max-width: 100%; /* Prevent overly wide logos */
+}
+
+/* Button section styling */
+#buttons {
+  display: flex; /* Align buttons in a row */
+  gap: 10px; /* Space between buttons */
+}
+
+/* Style for Save and Clear buttons */
+#save-button,
+#clear-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#save-button:hover,
+#clear-button:hover {
+  background-color: #0056b3;
+}
+
+/* Table container styling */
+.table-container {
+  width: 90%;
+  max-height: 80vh; /* Adjust for better visibility on smaller screens */
+  overflow-y: auto;
+  margin-top: 20px; /* Space between buttons and table */
+  border: 1px solid white; /* Add border around the table */
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Add subtle shadow for better focus */
+  background-color: #222; /* Slightly lighter background for contrast */
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid white;
+  padding: 10px;
+  text-align: center;
+  background-color: black; /* Ensure consistent styling */
+  color: white;
+}
+
+th {
+  background-color: #333; /* Differentiate header row */
+  font-weight: bold; /* Ensure header is bold */
+}
+
+/* General button styling */
+button {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+}
+
+button:hover {
+  background-color: gray;
+  color: white;
+}
+
+/* Input text styling */
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  padding: 5px;
+  text-align: center;
+  border: 1px solid white;
+  background-color: black;
+  color: white;
+  box-sizing: border-box; /* Prevent overflow issues */
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+  border-color: #007bff;
+  outline: none; /* Remove default focus styles */
+}
+
+/* Styles for table number cells */
+.number-cell {
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+  font-weight: bold; /* Make text bold */
+  font-size: 24px; /* Large font size */
+}
+
+.number-cell.highlighted {
+  background-color: yellow;
+  color: black;
+}
+
+.number-cell.orange {
+  background-color: orange;
+  color: black;
+}
+
+.number-cell.green {
+  background-color: green;
+  color: black;
+}
+
+.number-cell.red {
+  background-color: red;
+  color: white;
+}
+
+/* New: Paid status styling */
+.number-cell.paid {
+  background-color: blue; /* Highlight row in blue if Paid */
+  color: white; /* White text for better contrast */
+}
+
+/* New: Picked status styling */
+.number-cell.picked {
+  background-color: lightblue; /* Light blue for Picked status */
+  color: black; /* Black text for better readability */
+}
+
+.upload-toggle {
+  transform: scale(1.2); /* Slightly larger checkbox */
+  cursor: pointer; /* Pointer cursor for interactivity */
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
   }
 
-  .number-cell {
-    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+  .payment-type {
+    padding: 5px;
+    width: 100%;
+    font-size: 14px;
   }
   
-  .number-cell.highlighted {
-    background-color: yellow;
-    color: black;
+
+  #logo {
+    height: 100%;
   }
-  
-  .number-cell.orange {
-    background-color: orange;
-    color: black;
+
+  #save-button,
+  #clear-button {
+    font-size: 12px;
+    padding: 8px 16px;
   }
-  
-  .number-cell.green {
-    background-color: green;
-    color: black;
+
+  .letter-dropdown {
+    font-size: 20px;
   }
-  
-  .number-cell.red {
-    background-color: red;
-    color: white;
-  }
-  
-  
+}
