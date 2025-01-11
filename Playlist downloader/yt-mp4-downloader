@@ -1,0 +1,27 @@
+import yt_dlp
+
+# Define the video URL
+url = 'https://www.youtube.com/watch?v=UJa80UPjREU'
+
+# Set options to download 1080p video and the best audio separately
+ydl_opts_video = {
+    'format': 'bestvideo[height=1080][ext=mp4]',  # Download only the 1080p video
+    'outtmpl': 'video_only.mp4',  # Output file for video
+}
+
+ydl_opts_audio = {
+    'format': 'bestaudio[ext=m4a]',  # Download the best audio in M4A format
+    'outtmpl': 'audio_only.m4a',  # Output file for audio
+}
+
+# Download the 1080p video
+print("Downloading 1080p video...")
+with yt_dlp.YoutubeDL(ydl_opts_video) as ydl:
+    ydl.download([url])
+
+# Download the best audio
+print("Downloading best audio...")
+with yt_dlp.YoutubeDL(ydl_opts_audio) as ydl:
+    ydl.download([url])
+
+print("Download complete! Video and audio have been saved separately.")

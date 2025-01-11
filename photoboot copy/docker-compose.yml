@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  app:
+    platform: linux/arm64/v8
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./backend:/app/backend
+      - /app/backend/node_modules
+    environment:
+      - NODE_ENV=production
