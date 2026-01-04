@@ -3,6 +3,8 @@ socket.on('connect', () => {
   console.log('WebSocket connected');
 });
 const tableBody = document.getElementById('table-body'); // The table body in your HTML
+const totalPriceDisplay = document.getElementById('total-price');
+
 
 let tableData = []; // This will hold the table data
 let highlightedNumbers = new Set(); // Set to store all numbers that should remain yellow
@@ -17,6 +19,22 @@ const increaseButton = document.getElementById('increase');
 socket.on('counter-update', (value) => {
   counterDisplay.textContent = value;
 });
+
+function updateTotalPrice() {
+  let total = 0;
+  let paidTotal = 0;
+
+  tableData.forEach(row => {
+    const price = parseFloat(row.price) || 0;
+    total += price;
+    if (row.paid) {
+      paidTotal += price;
+    }
+  });
+
+  totalPriceDisplay.textContent = `${paidTotal} / ${total}`;
+}
+
 
 // Function to update the counter via a server request
 const updateCounter = async (change) => {
@@ -105,6 +123,7 @@ clearButton.addEventListener('click', () => {
 
   // Re-render the table locally
   renderTableRows();
+  updateTotalPrice(); // Add this line
 });
 
 socket.on('table-cleared', () => {
@@ -130,6 +149,7 @@ async function fetchTableData() {
     tableData = await response.json();
     console.log('Fetched table data:', tableData); // Debug fetched data
     renderTableRows();
+    updateTotalPrice(); // Add this line
   } catch (error) {
     console.error('Error fetching table data:', error);
   }
@@ -164,7 +184,16 @@ function renderTableRows() {
       <td><input type="checkbox" class="paid-toggle" data-number="${row.number}" ${row.paid ? 'checked' : ''}></td>
       <td><input type="checkbox" class="picked-toggle" data-number="${row.number}" ${row.picked ? 'checked' : ''}></td>
       <td><input type="checkbox" class="upload-toggle" data-number="${row.number}" ${row.upload ? 'checked' : ''}></td>
-      <td><input type="text" class="price" data-number="${row.number}" value="${row.price || ''}"></td>
+      <td><input type="text" class="main-field" data-number="${row.number}" value="${row.main || ''}"></td> <!-- NEW -->
+      <td>
+  <input
+    type="number"
+    class="price"
+    data-number="${row.number}"
+    value="${row.price || ''}"
+    style="font-weight:bold; font-size:1.1em;"
+  >
+</td>
       <td>
         <select class="payment-type" data-number="${row.number}">
           <option value="" ${row.paymentType === '' ? 'selected' : ''}>Select</option>
@@ -172,13 +201,62 @@ function renderTableRows() {
           <option value="Card" ${row.paymentType === 'Card' ? 'selected' : ''}>Card</option>
         </select>
       </td>
-      <td><input type="number" class="people-count" data-number="${row.number}" value="${row.peopleCount || 0}"></td>
-      <td><input type="number" class="copies" data-number="${row.number}" value="${row.copies}"></td>
+      <td>
+  <div class="num-control">
+    <button class="dec-people" data-number="${row.number}">-</button>
+    <input type="number" class="people-count" data-number="${row.number}" value="${row.peopleCount || 0}">
+    <button class="inc-people" data-number="${row.number}">+</button>
+  </div>
+</td>
+
+<td>
+  <div class="num-control">
+    <button class="dec-copies" data-number="${row.number}">-</button>
+    <input type="number" class="copies" data-number="${row.number}" value="${row.copies}">
+    <button class="inc-copies" data-number="${row.number}">+</button>
+  </div>
+</td>
+
+
       <td><input type="text" class="notes" data-number="${row.number}" value="${row.notes}"></td>
     `;
 
     tableBody.appendChild(tr);
   });
+}
+
+// --- PRICE CALCULATION FUNCTION ---  <<< ADDED
+function calculatePrice(people, copies, upload) {
+  people = parseInt(people) || 0;
+  copies = parseInt(copies) || 1;
+
+  let basePrice = 0;
+
+  // Base price by number of people
+  if (people >= 1 && people <= 4) basePrice = 15;
+  else if (people >= 5 && people <= 8) basePrice = 25;
+  else if (people >= 9 && people <= 12) basePrice = 35;
+  else if (people >= 13 && people <= 20) basePrice = 45;
+  else if (people >= 21 && people <= 25) basePrice = 55;
+  else if (people > 25) basePrice = 60;
+
+  // Copies pricing
+  const extraCopies = copies - 1;
+  let copyPrice = 0;
+
+  if (extraCopies > 0) {
+    if (extraCopies <= 2) {
+      copyPrice = extraCopies * 5;
+    } else if (extraCopies <= 5) {
+      copyPrice = extraCopies * 4;
+    } else {
+      copyPrice = extraCopies * 3;
+    }
+  }
+
+  const uploadFee = upload ? 5 : 0;
+
+  return basePrice + copyPrice + uploadFee;
 }
 
 
@@ -204,44 +282,114 @@ function getNumberCellStyle(row) {
 tableBody.addEventListener('change', (event) => {
   const target = event.target;
   const rowNumber = parseInt(target.dataset.number, 10);
+  if (!rowNumber) return;
 
-  if (rowNumber) {
-    const row = tableData.find(r => r.number === rowNumber);
+  const row = tableData.find(r => r.number === rowNumber);
+  if (!row) return;
+
+  // ----- MANUAL PRICE ENTRY -----
+  if (target.classList.contains('price')) {
+    row.price = parseFloat(target.value) || 0;
+    row.priceManual = true;        // 🔑 STEP 3 starts here
+  }
+
+  // ----- AUTO PRICE FIELDS -----
+  else if (target.classList.contains('people-count')) {
+    row.peopleCount = parseInt(target.value) || 0;
+    row.priceManual = false;
+  }
+
+  else if (target.classList.contains('copies')) {
+    row.copies = parseInt(target.value) || 1;
+    row.priceManual = false;
+  }
+
+  else if (target.classList.contains('upload-toggle')) {
+    row.upload = target.checked;
+    row.priceManual = false;
+  }
+
+  // ----- OTHER FIELDS -----
+  else if (target.classList.contains('paid-toggle')) {
+    row.paid = target.checked;
+  }
+  else if (target.classList.contains('picked-toggle')) {
+    row.picked = target.checked;
+  }
+  else if (target.classList.contains('notes')) {
+    row.notes = target.value;
+  }
+  else if (target.classList.contains('payment-type')) {
+    row.paymentType = target.value;
+  }
+  else if (target.classList.contains('letter-dropdown')) {
+    row.letter = target.value;
+  }
+  else if (target.classList.contains('pc-toggle')) {
+    row[target.dataset.field] = target.checked;
+  }
+  else if (target.classList.contains('printed-toggle')) {
+    row.printed = target.checked;
+  }
+  else if (target.classList.contains('express-toggle')) {
+    row.express = target.checked;
+  }
+
+  // ----- PRICE CALCULATION GATE -----
+  if (!row.priceManual) {
+    row.price = calculatePrice(row.peopleCount, row.copies, row.upload);
+  }
+
+  socket.emit('table-update', { number: row.number, updates: row });
+  renderTableRows();
+  updateTotalPrice();
+});
+
+
+tableBody.addEventListener('click', (event) => {
+  const btn = event.target;
+
+  // PEOPLE +/–
+  if (btn.classList.contains('inc-people') || btn.classList.contains('dec-people')) {
+    const number = parseInt(btn.dataset.number);
+    const row = tableData.find(r => r.number === number);
     if (!row) return;
 
-    if (target.classList.contains('letter-dropdown')) {
-      row.letter = target.value;
-    } else if (target.classList.contains('pc-toggle')) {
-      const field = target.dataset.field;
-      row[field] = target.checked;
-    } else if (target.classList.contains('printed-toggle')) {
-      row.printed = target.checked;
-    } else if (target.classList.contains('express-toggle')) {
-      row.express = target.checked;
-    } else if (target.classList.contains('copies')) {
-      row.copies = target.value;
-    } else if (target.classList.contains('notes')) {
-      row.notes = target.value;
-    } else if (target.classList.contains('paid-toggle')) {
-      row.paid = target.checked;
-      if (row.paid) row.picked = false; // Uncheck Picked if Paid is checked
-    } else if (target.classList.contains('picked-toggle')) {
-      row.picked = target.checked;
-      if (row.picked) row.paid = false; // Uncheck Paid if Picked is checked
-    } else if (target.classList.contains('upload-toggle')) {
-      row.upload = target.checked; // Update the upload status
-    } else if (target.classList.contains('payment-type')) {
-      row.paymentType = target.value; // Update payment type 
-    } else if (target.classList.contains('price')) {
-      row.price = target.value;
-    } else if (target.classList.contains('people-count')) {
-      row.peopleCount = target.value;
+    if (btn.classList.contains('inc-people')) {
+      row.peopleCount++;
+    } else {
+      row.peopleCount = Math.max(0, row.peopleCount - 1);
     }
 
-    // Emit the updated row to the server
-    socket.emit('table-update', { number: row.number, updates: row });
+    if (!row.priceManual) {
+      row.price = calculatePrice(row.peopleCount, row.copies, row.upload);
+    }
+    
 
-    renderTableRows(); // Re-render rows to apply new styles
+    socket.emit('table-update', { number: row.number, updates: row });
+    renderTableRows();
+    updateTotalPrice(); // Add this line
+    return;
+  }
+
+  // COPIES +/–
+  if (btn.classList.contains('inc-copies') || btn.classList.contains('dec-copies')) {
+    const number = parseInt(btn.dataset.number);
+    const row = tableData.find(r => r.number === number);
+    if (!row) return;
+
+    if (btn.classList.contains('inc-copies')) {
+      row.copies++;
+    } else {
+      row.copies = Math.max(1, row.copies - 1);
+    }
+
+    row.price = calculatePrice(row.peopleCount, row.copies, row.upload);
+
+    socket.emit('table-update', { number: row.number, updates: row });
+    renderTableRows();
+    updateTotalPrice(); // Add this line
+    return;
   }
 });
 
@@ -250,6 +398,7 @@ tableBody.addEventListener('change', (event) => {
 socket.on('counter-update', (counterValue) => {
   highlightedNumbers.add(counterValue); // Add the counter number to highlightedNumbers
   renderTableRows(); // Re-render rows to apply updated styles
+  updateTotalPrice(); // Add this line
 });
 
 // Listen for table updates from the WebSocket
@@ -258,6 +407,7 @@ socket.on('table-update', ({ number, updates }) => {
   if (row) {
     Object.assign(row, updates); // Merge updates into the row
     renderTableRows(); // Re-render rows to apply new styles
+    updateTotalPrice(); // Add this line
   }
 });
 

@@ -22,7 +22,7 @@ const PORT = 3003; // Keep PORT declaration here
 console.log('Serving static files from:', path.join(__dirname, '../frontend'));
 
 // In-memory table data for simplicity
-let tableData = Array.from({ length: 90 }, (_, index) => ({
+let tableData = Array.from({ length: 120 }, (_, index) => ({
   number: index + 1,
   pc1: false,
   pc2: false,
@@ -32,6 +32,7 @@ let tableData = Array.from({ length: 90 }, (_, index) => ({
   copies: '',
   notes: '',
   highlighted: false, // track if the row should be highlighted
+  main: '', // <-- NEW FIELD
 }));
 
 // Sync database and initialize counter
@@ -127,6 +128,7 @@ app.post('/clear-table', (req, res) => {
     copies: '',
     notes: '',
     highlighted: false, // Ensure highlight state is also cleared
+    main: '', // <-- reset new field
   }));
 
   io.emit('table-cleared'); // Notify all connected clients

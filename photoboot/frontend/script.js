@@ -24,9 +24,9 @@ increaseButton.addEventListener('click', () => updateCounter(1));
 
 // Listen for keyboard events
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
+  if (event.key === 'ArrowUp') {
     updateCounter(1); // Increment counter when "+" key is pressed
-  } else if (event.key === '+') {
+  } else if (event.key === 'ArrowDown') {
     updateCounter(-1); // Decrement counter when "-" key is pressed
   }
 });

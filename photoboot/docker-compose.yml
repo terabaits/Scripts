@@ -6,9 +6,9 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=counterdb
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
 
   web:
     build:
